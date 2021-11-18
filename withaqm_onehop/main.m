@@ -7,7 +7,7 @@ clear all;
 close all;
 
 SIM_NUM = '1';
-NUM_WORKERS = 1;
+NUM_WORKERS = 2;
 initial_transient_proportion = 0.1; % percentage
 
 sim_name = 'withaqm_onehop';
@@ -21,33 +21,29 @@ sim_vars = [ 0, 0.9  ...                % (1)  arrivalfunction          (2)  arr
 
 % AQM numbers:
 % NoAQM=0, PIE=1, CoDel=2, Delta=3
-aqm_params = [ 1, 0, 0 ...                              % GENERAL:  (1)  enabled_aqm_uplink     (2)  enabled_aqm_compute    (3)  enabled_aqm_downlink                         
+aqm_params = [ 3, 0, 0 ...                              % GENERAL:  (1)  enabled_aqm_uplink     (2)  enabled_aqm_compute    (3)  enabled_aqm_downlink                         
                1, 1, 3, 15/40, (1 + 1/4)*15+15/800 ...  % UPLINK:   (4)  PIE QDELAY_REF         (5)  PIE MEAN_PKTSIZE       (6)  PIE T_UPDATE          (7) PIE ALPHA  (8) PIE BETA 
                2/3, 2 ...                               %           (9)  CODEL DELAY_TARGET     (10) CODEL INTERVAL
                100 ...                                  %           (11) DELTA QUEUE TABLE SIZE
              ];                       
 
-ml_model_config = [int32(10000), int32(3), int32(16), ... % n_epoch, n_centers, hidden_layer_n
-                      int32(1), int32(1), int32(4), int32(-5)]; % ndim_x,  is_emm, learning_rate_p1, learning_rate_p2
-
-ml_model_address = '/Users/ssmos/Desktop/Research Project/Density Estimation/CDE_virtualenv/Conditional_Density_Estimation/'; % address_name emm_1hop_model_30k_norm_cl, emm_1hop_model_5k_cl
-
+%delta_sm_address = '../../conditional-latency-probability-prodiction/'; % address_name emm_1hop_model_30k_norm_cl, emm_1hop_model_5k_cl
+delta_sm_address = '/Users/ssmos/Desktop/time-sensitive-aqm/conditional-latency-probability-prodiction/';
          
 %% Dataset Generation
 
 tic
 
-stop_time = '50000'; %'50000',ml2,arrival 0.8 -> 292 sec, not that accurate
+stop_time = '10000'; %'50000',ml2,arrival 0.8 -> 292 sec, not that accurate
 
-numSims = 1;
+numSims = 2;
 simIn(1:numSims) = Simulink.SimulationInput(sim_name);
 seedsOffsets = floor(rand(numSims,1)*100000);
 for idx = 1:numSims
     sim_vars(12) = seedsOffsets(idx);
     simIn(idx) = simIn(idx).setVariable('sim_vars', sim_vars);
     simIn(idx) = simIn(idx).setVariable('aqm_params', aqm_params);
-    simIn(idx) = simIn(idx).setVariable('ml_model_config', ml_model_config);
-    simIn(idx) = simIn(idx).setVariable('ml_model_address', ml_model_address);
+    simIn(idx) = simIn(idx).setVariable('delta_sm_address', delta_sm_address);
     simIn(idx) = simIn(idx).setModelParameter('StopTime',stop_time); 
 end
 toc
@@ -66,7 +62,7 @@ for n = 1:numSims
 end
 toc
 
-clear 'simIn' 'simOut' 'idx' 'n';
+%clear 'simIn' 'simOut' 'idx' 'n';
 
 %% Save all usefull data to 2 files: a .mat and a .parquet
 
