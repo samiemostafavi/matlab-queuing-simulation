@@ -23,8 +23,8 @@ sim_vars = [ 0, 0.9  ...                % (1)  arrivalfunction          (2)  arr
 % NoAQM=0, PIE=1, CoDel=2, Delta=3
 aqm_params = [ 3, 0, 0 ...                              % GENERAL:  (1)  enabled_aqm_uplink     (2)  enabled_aqm_compute    (3)  enabled_aqm_downlink                         
                1, 1, 3, 15/40, (1 + 1/4)*15+15/800 ...  % UPLINK:   (4)  PIE QDELAY_REF         (5)  PIE MEAN_PKTSIZE       (6)  PIE T_UPDATE          (7) PIE ALPHA  (8) PIE BETA 
-               2/3, 2 ...                               %           (9)  CODEL DELAY_TARGET     (10) CODEL INTERVAL
-               100 ...                                  %           (11) DELTA QUEUE TABLE SIZE
+               2/3, 2 ...                               %           (9)  CODEL TARGET_DELAY     (10) CODEL INTERVAL
+               100, 10, ...                             %           (11) DELTA QUEUE TABLE SIZE (12) DELTA TARGET_DELAY
              ];                       
 
 %delta_sm_address = '../../conditional-latency-probability-prodiction/'; % address_name emm_1hop_model_30k_norm_cl, emm_1hop_model_5k_cl
@@ -34,7 +34,7 @@ delta_sm_address = '/Users/ssmos/Desktop/time-sensitive-aqm/conditional-latency-
 
 tic
 
-stop_time = '10000'; %'50000',ml2,arrival 0.8 -> 292 sec, not that accurate
+stop_time = '50000'; %'50000',ml2,arrival 0.8 -> 292 sec, not that accurate
 
 numSims = 2;
 simIn(1:numSims) = Simulink.SimulationInput(sim_name);
