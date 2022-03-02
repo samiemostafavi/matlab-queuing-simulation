@@ -11,7 +11,7 @@ NUM_WORKERS = 2;
 initial_transient_proportion = 0.1; % percentage
 
 sim_name = 'sim_three_hop';
-sim_vars = [ 100000, 25  ...            % (1)  arrival_duration (T_max)         (2)  arrivalrate (rho)    
+sim_vars = [ 1000000, 25  ...            % (1)  arrival_duration (T_max)         (2)  arrivalrate (rho)    
              1e-3,  ...                 % (3)  timslots duration (seconds)
              20e3, 5, ...               % (4)  hop 1 bandwidth in Hz        (5)  hop 1 SNR in db
              20e3, 5, ...               % (6)  hop 2 bandwidth in Hz        (7)  hop 2 SNR in db
@@ -24,7 +24,7 @@ sim_vars = [ 100000, 25  ...            % (1)  arrival_duration (T_max)         
 
 tic
 
-stop_time = '100000'; %'50000',ml2,arrival 0.8 -> 292 sec, not that accurate
+stop_time = '1000000'; %'50000',ml2,arrival 0.8 -> 292 sec, not that accurate
 
 numSims = 2;
 simIn(1:numSims) = Simulink.SimulationInput(sim_name);
@@ -45,16 +45,19 @@ parpool('local',NUM_WORKERS);   % start a new one
 % Simulate the model
 simOut = parsim(simIn,'UseFastRestart','on'); % ,'ShowProgress', 'on', 'ShowSimulationManager','on'
 recordsTable = table;
-virtualDelay = [];
+%virtualDelay = [];
 for n = 1:numSims
     recordsTable = [recordsTable; logs2table(simOut(n).logsout,initial_transient_proportion)];
-    at = get(simOut(n).logsout,'cumulative_arrival').Values.Data;
-    dt = get(simOut(n).logsout,'cumulative_departure').Values.Data;
-    virtualDelay = [virtualDelay, virtualdelay(at,dt)];
+    %at = get(simOut(n).logsout,'cumulative_arrival').Values.Data;
+    %dt = get(simOut(n).logsout,'cumulative_departure').Values.Data;
+    %virtualDelay = [virtualDelay, virtualdelay(at,dt)];
 end
 
-tail = calctail([0:10],virtualDelay);
-createtailfigure([0:10],tail);
+%tail = calctail([0:10],virtualDelay);
+%createtailfigure([0:10],tail);
+
+% new_recordstable = downsample_records(recordstable,[0:10:100],10000,1,0.6);
+% plottail(new_recordstable{:,[1,11]},[0:1:14],40,[1e-6, 1e0],1,0)
 
 toc
 
